@@ -1,4 +1,23 @@
-# Build stage
+# ==========================================
+# Stage 1: Development
+# ==========================================
+FROM node:20-alpine AS development
+
+WORKDIR /app
+
+# Install all dependencies (including devDependencies)
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+
+# ==========================================
+# Stage 2: Builder (for production build)
+# ==========================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -9,8 +28,10 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
+# ==========================================
+# Stage 3: Production
+# ==========================================
+FROM node:20-alpine AS production
 
 WORKDIR /app
 

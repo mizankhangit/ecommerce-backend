@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder          
+      target: development
     container_name: ecommerce-api
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -16,12 +16,15 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - DB_DATABASE=ecommerce
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRES_IN=7d
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - .:/app
-      - /app/node_modules
+      - /app/node_modules  # Container keeps its own node_modules
+      - dist-data:/app/dist  # Named volume: Docker owns dist, never locked by Windows host
     command: npm run start:dev
     networks:
       - ecommerce-network
@@ -31,7 +34,7 @@ services:
     container_name: ecommerce-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -39,7 +42,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -48,6 +51,7 @@ services:
 
 volumes:
   postgres-data:
+  dist-data:  # Isolated dist volume for NestJS build output
 
 networks:
   ecommerce-network:

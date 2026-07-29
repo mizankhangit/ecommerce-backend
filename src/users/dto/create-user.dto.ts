@@ -1,15 +1,24 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
-  @ApiProperty({ example: 'john@example.com', description: 'User email address' })
+  @ApiProperty({
+    example: 'john@example.com',
+    description: 'User email address',
+  })
   @IsEmail({}, { message: 'Please provide a valid email' })
   email: string;
 
-  @ApiProperty({ example: 'StrongP@ss123', description: 'Min 8 characters' })
+  @ApiProperty({ example: 'StrongP@ss123', description: 'Min 6 characters' })
   @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
   @ApiProperty({ example: 'John' })
