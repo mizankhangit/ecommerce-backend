@@ -27,6 +27,10 @@ export class User {
   @Column({ name: 'first_name' })
   firstName: string;
 
+  @ApiProperty({ example: 'Doe' })
+  @Column({ name: 'last_name' })
+  lastName: string;
+
   @ApiProperty({ enum: UserRole, example: UserRole.CUSTOMER })
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;

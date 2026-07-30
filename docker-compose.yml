@@ -16,15 +16,21 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
       - DB_DATABASE=ecommerce
-      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-      - JWT_EXPIRES_IN=7d
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=your-access-secret-change-in-production
+      - JWT_REFRESH_SECRET=your-refresh-secret-change-in-production
+      - JWT_ACCESS_EXPIRATION=15m
+      - JWT_REFRESH_EXPIRATION=7d
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
-      - /app/node_modules  # Container keeps its own node_modules
-      - dist-data:/app/dist  # Named volume: Docker owns dist, never locked by Windows host
+      - /app/node_modules
+      - dist-data:/app/dist # Named volume: Docker owns dist, never locked by Windows host
     command: npm run start:dev
     networks:
       - ecommerce-network
@@ -49,9 +55,23 @@ services:
     networks:
       - ecommerce-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
 volumes:
   postgres-data:
-  dist-data:  # Isolated dist volume for NestJS build output
+  dist-data:
 
 networks:
   ecommerce-network:
